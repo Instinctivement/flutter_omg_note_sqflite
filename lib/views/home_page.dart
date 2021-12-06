@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_omg_note_sqflite/main.dart';
 import 'package:flutter_omg_note_sqflite/theme/style.dart';
 import 'package:flutter_omg_note_sqflite/theme/theme_provider.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_actions/quick_actions.dart';
 import '../constants/constant.dart';
@@ -17,6 +18,7 @@ class _HomePageState extends State<HomePage> {
   final quickActions = const QuickActions();
   bool switchValue = false;
   ThemeProvider themeProvider = ThemeProvider();
+  DateTime timeBackPressed = DateTime.now();
 
   void getCurrentTheme() async {
     themeProvider.darkTheme = await themeProvider.preference.getTheme();
@@ -78,21 +80,46 @@ class _HomePageState extends State<HomePage> {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: Style.themeData(themeProvider.darkTheme),
-            home: Scaffold(
-              appBar: AppBar(
-                title: const Text('OmgApp'),
-              ),
-              body: Center(
-                child: Switch(
-                  inactiveTrackColor: primaryClr,
-                  inactiveThumbColor: secondaryClr,
-                  value: switchValue,
-                  onChanged: (val) {
-                    themeProvider.darkTheme = !themeProvider.darkTheme;
-                    setState(() {
-                      switchValue = val;
-                    });
-                  },
+            home: WillPopScope(
+              onWillPop: () async {
+                final difference = DateTime.now().difference(timeBackPressed);
+                final isExistwarning = difference >= const Duration(seconds: 2);
+
+                timeBackPressed = DateTime.now();
+
+                if (isExistwarning) {
+                  const message = "Appuyer de nouveau pour sortir";
+                  Fluttertoast.showToast(
+                    msg: message,
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: primaryClr,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                  return false;
+                } else {
+                  Fluttertoast.cancel();
+                  return true;
+                }
+              },
+              child: Scaffold(
+                appBar: AppBar(
+                  title: const Text('OmgApp'),
+                ),
+                body: Center(
+                  child: Switch(
+                    inactiveTrackColor: primaryClr,
+                    inactiveThumbColor: secondaryClr,
+                    value: switchValue,
+                    onChanged: (val) {
+                      themeProvider.darkTheme = !themeProvider.darkTheme;
+                      setState(() {
+                        switchValue = val;
+                      });
+                    },
+                  ),
                 ),
               ),
             ),

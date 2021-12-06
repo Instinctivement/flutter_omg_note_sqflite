@@ -1,2 +1,4 @@
 ## Nous allons créé une application de gestion 
 des notes (taches à faire) oui un todolist
+
+flutter pub run flutter_launcher_icons:main

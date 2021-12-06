@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-const kBackgroundColor = Color(0xffF9F9F9);
-const kWhiteColor = Color(0xffffffff);
-const kOrangeColor = Color(0xffEF716B);
-const kBlueColor = Color(0xff4B7FFB);
-const kYellowColor = Color(0xffFFB167);
-const kTitleTextColor = Color(0xff1E1C61);
-const kSousTitleTextColor = Color(0xFF2E2C70);
-const kSearchBackgroundColor = Color(0xffF2F2F2);
-const kSearchTextColor = Color(0xffC0C0C0);
-const kCategoryTextColor = Color(0xff292685);
+const Color orangSombreClr = Color(0xFFef523f);
+const Color orangClairClr = Color(0xFFF48662);
+const Color yellowClr = Color(0xFFFFB746);
+const Color pinkClr = Color(0xFFff4667);
+const Color white = Colors.white;
+const Color primaryClr = orangClairClr;
+const Color secondaryClr = orangSombreClr;
+
+const Color darkGreyClr = Color(0xFF121212);
+const Color darkHeaderClr = Color(0xFF424242);

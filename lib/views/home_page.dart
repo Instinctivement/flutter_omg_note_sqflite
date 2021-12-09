@@ -6,6 +6,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:quick_actions/quick_actions.dart';
 import '../constants/constant.dart';
+import '../notification/notificationservice.dart';
+import 'secondpage.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -28,6 +30,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     getCurrentTheme();
     super.initState();
+
+    NotificationService.initNotification(initScheduled: true);
+    listeNotification();
 
     quickActions.setShortcutItems([
       const ShortcutItem(
@@ -71,6 +76,14 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void listeNotification() =>
+      NotificationService.onNotifications.stream.listen(onClickNotification);
+
+  void onClickNotification(String? payload) =>
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => SecondPage(payload: payload),
+      ));
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -109,16 +122,42 @@ class _HomePageState extends State<HomePage> {
                   title: const Text('OmgApp'),
                 ),
                 body: Center(
-                  child: Switch(
-                    inactiveTrackColor: primaryClr,
-                    inactiveThumbColor: secondaryClr,
-                    value: switchValue,
-                    onChanged: (val) {
-                      themeProvider.darkTheme = !themeProvider.darkTheme;
-                      setState(() {
-                        switchValue = val;
-                      });
-                    },
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          NotificationService().showSimpleNotification(
+                            id: 1,
+                            title: 'Mon titre',
+                            body: "A simple notification",
+                            payload: "OMGBA.Abs",
+                          );
+
+                          // final SnackBar = SnackBar();
+                        },
+                        child: Container(
+                          height: 40,
+                          width: 200,
+                          color: Colors.green,
+                          child: const Center(
+                            child: Text("Show simple Notification"),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Switch(
+                        inactiveTrackColor: primaryClr,
+                        inactiveThumbColor: secondaryClr,
+                        value: switchValue,
+                        onChanged: (val) {
+                          themeProvider.darkTheme = !themeProvider.darkTheme;
+                          setState(() {
+                            switchValue = val;
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),

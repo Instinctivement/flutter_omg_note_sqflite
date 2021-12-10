@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_omg_note_sqflite/views/home_page.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:splash_screen_view/SplashScreenView.dart';
 import 'notification/notificationservice.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   NotificationService.initNotification();
+  await GetStorage.init;
 
   runApp(const MyApp());
 }
@@ -43,9 +46,6 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'OmgNote',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
       home: splash,
     );
   }

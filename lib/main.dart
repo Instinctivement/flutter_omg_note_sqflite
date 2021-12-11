@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_omg_note_sqflite/models/db.dart';
 import 'package:flutter_omg_note_sqflite/views/home_page.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:splash_screen_view/SplashScreenView.dart';
 import 'notification/notificationservice.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await DBHelper.initDb();
   NotificationService.initNotification();
-  await GetStorage.init;
+  await GetStorage.init();
 
   runApp(const MyApp());
 }

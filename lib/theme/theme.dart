@@ -3,6 +3,7 @@ import 'package:flutter_omg_note_sqflite/constants/constant.dart';
 
 class Themes {
   static final lightMode = ThemeData(
+    backgroundColor: white,
     appBarTheme: const AppBarTheme(
       backgroundColor: white,
     ),
@@ -10,6 +11,7 @@ class Themes {
   );
 
   static final darktMode = ThemeData(
+    backgroundColor: darkGreyClr,
     appBarTheme: const AppBarTheme(
       backgroundColor: darkGreyClr,
     ),

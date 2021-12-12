@@ -265,7 +265,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
     DateTime? _pickerDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2015),
+      firstDate: DateTime(2021),
       lastDate: DateTime(2050),
     );
     if (_pickerDate != null) {
@@ -279,7 +279,6 @@ class _AddTaskPageState extends State<AddTaskPage> {
     var pickedTime = await _showTimePicker();
     String _formatedTime = pickedTime.format(context);
     if (pickedTime == null) {
-      print("Time cancel");
     } else if (isStartTime == true) {
       setState(() {
         _startTime = _formatedTime;
@@ -320,7 +319,7 @@ class _AddTaskPageState extends State<AddTaskPage> {
   }
 
   _addTaskToDB() async {
-    int value = await _taskController.addTask(
+    await _taskController.addTask(
         task: Task(
       title: _titleController.text,
       note: _noteContoller.text,
@@ -332,6 +331,5 @@ class _AddTaskPageState extends State<AddTaskPage> {
       color: _selectedColor,
       isComplete: 0,
     ));
-    print("my id is" "$value");
   }
 }

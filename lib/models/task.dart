@@ -39,7 +39,7 @@ class Task {
 
   //To save this data in database we need to convert it to a map
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
+    final Map<String, dynamic> data = <String, dynamic>{};
     data['id'] = id;
     data['title'] = title;
     data['note'] = note;

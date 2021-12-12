@@ -8,7 +8,7 @@ import 'notification/notificationservice.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await DBHelper.initDb();
-  NotificationService.initNotification();
+  NotificationService().initNotification();
   await GetStorage.init();
 
   runApp(const MyApp());

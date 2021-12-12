@@ -13,7 +13,6 @@ import 'package:intl/intl.dart';
 import 'package:quick_actions/quick_actions.dart';
 import '../constants/constant.dart';
 import '../notification/notificationservice.dart';
-import 'secondpage.dart';
 import 'package:get/get.dart';
 import '../theme/theme_service.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
@@ -36,8 +35,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    NotificationService.initNotification(initScheduled: true);
-    listeNotification();
+    NotificationService().initNotification(initScheduled: true);
+    // listeNotification();
 
     quickActions.setShortcutItems([
       const ShortcutItem(
@@ -81,13 +80,13 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void listeNotification() =>
-      NotificationService.onNotifications.stream.listen(onClickNotification);
+  // void listeNotification() =>
+  //     NotificationService.onNotifications.stream.listen(onClickNotification);
 
-  void onClickNotification(String? payload) =>
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => SecondPage(payload: payload),
-      ));
+  // void onClickNotification(String? payload) =>
+  //     Navigator.of(context).push(MaterialPageRoute(
+  //       builder: (context) => SecondPage(payload: payload),
+  //     ));
 
   @override
   Widget build(BuildContext context) {
@@ -148,12 +147,11 @@ class _HomePageState extends State<HomePage> {
         onChanged: (val) {
           ThemeService().switchTheme();
           NotificationService().showSimpleNotification(
-            id: 2,
+            id: 0,
             title: 'Changement de thème',
             body: Get.isDarkMode
                 ? "Le mode clair a été activé"
                 : "Le mode sombre a été activé",
-            payload: "OMGBA.Abs",
           );
           setState(() {
             switchValue = val;
@@ -230,7 +228,9 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         onDateChange: (date) {
-          _selectedDate = date;
+          setState(() {
+            _selectedDate = date;
+          });
         },
       ),
     );
@@ -242,25 +242,56 @@ class _HomePageState extends State<HomePage> {
         return ListView.builder(
             itemCount: _taskController.taskList.length,
             itemBuilder: (_, index) {
-              print(_taskController.taskList.length);
-              return AnimationConfiguration.staggeredList(
-                position: index,
-                child: SlideAnimation(
-                  child: FadeInAnimation(
-                    child: Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            _showBottomSheet(
-                                context, _taskController.taskList[index]);
-                          },
-                          child: TaskTile(_taskController.taskList[index]),
-                        ),
-                      ],
+              Task task = _taskController.taskList[index];
+
+              if (task.repeat == 'Daily') {
+                var myTime = task.startTime;
+
+                NotificationService().showScheduledNotification(
+                  int.parse(myTime.toString().split(":")[0]),
+                  int.parse(myTime.toString().split(":")[1]),
+                  task,
+                );
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  child: SlideAnimation(
+                    child: FadeInAnimation(
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _showBottomSheet(context, task);
+                            },
+                            child: TaskTile(task),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
+                );
+              }
+
+              if (task.date == DateFormat.yMd().format(_selectedDate)) {
+                return AnimationConfiguration.staggeredList(
+                  position: index,
+                  child: SlideAnimation(
+                    child: FadeInAnimation(
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              _showBottomSheet(context, task);
+                            },
+                            child: TaskTile(task),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              } else {
+                return Container();
+              }
             });
       }),
     );

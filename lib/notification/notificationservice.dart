@@ -1,5 +1,8 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_native_timezone/flutter_native_timezone.dart';
+import 'package:flutter_omg_note_sqflite/models/task.dart';
+import 'package:flutter_omg_note_sqflite/views/notified_page.dart';
+import 'package:get/get.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:rxdart/rxdart.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -17,7 +20,7 @@ class NotificationService {
 
   NotificationService._internal();
 
-  static Future initNotification({bool initScheduled = false}) async {
+  Future initNotification({bool initScheduled = false}) async {
     const android = AndroidInitializationSettings('@drawable/logo');
 
     const settings = InitializationSettings(
@@ -30,13 +33,16 @@ class NotificationService {
       onNotifications.add(details.payload);
     }
 
+    // await _notifications.initialize(settings,
+    //     onSelectNotification: (payload) async {
+    //   onNotifications.add(payload);
+    // });
+
     await _notifications.initialize(settings,
-        onSelectNotification: (payload) async {
-      onNotifications.add(payload);
-    });
+        onSelectNotification: selectNotification);
 
     if (initScheduled) {
-      tz.initializeTimeZones();
+      _configureLocalTimezone();
       final locationName = await FlutterNativeTimezone.getLocalTimezone();
       tz.setLocalLocation(tz.getLocation(locationName));
     }
@@ -60,34 +66,58 @@ class NotificationService {
     int id = 0,
     String? title,
     String? body,
-    String? payload,
   }) async =>
       _notifications.show(
         id,
         title,
         body,
         await _notificationDetails(),
-        payload: payload,
+        payload: title,
       );
 
 //Fonction pour envoyer des notifications avec une certaine marge de temps qu'on aura defini
   Future<void> showScheduledNotification(
-          {int id = 0,
-          String? title,
-          String? body,
-          String? payload,
-          required int seconds}) async =>
-      _notifications.zonedSchedule(
-        id,
-        title,
-        body,
-        tz.TZDateTime.now(tz.local).add(Duration(seconds: seconds)),
-        await _notificationDetails(),
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        androidAllowWhileIdle: true,
-        payload: payload,
-      );
+    int hour,
+    int minutes,
+    Task task, {
+    int id = 0,
+  }) async {
+    _notifications.zonedSchedule(
+      task.id!.toInt(),
+      task.title,
+      task.note,
+      _convertTime(hour, minutes),
+      await _notificationDetails(),
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      matchDateTimeComponents: DateTimeComponents.time,
+      androidAllowWhileIdle: true,
+      payload: "${task.title}|" "${task.note}|",
+    );
+  }
+
+  tz.TZDateTime _convertTime(int hour, int minutes) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+
+    tz.TZDateTime scheduleDate =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, hour, minutes);
+    if (scheduleDate.isBefore(now)) {
+      scheduleDate = scheduleDate.add(const Duration(days: 1));
+    }
+    return scheduleDate;
+  }
+
+  Future<void> _configureLocalTimezone() async {
+    tz.initializeTimeZones();
+    final String timezone = await FlutterNativeTimezone.getLocalTimezone();
+    tz.setLocalLocation(tz.getLocation(timezone));
+  }
+
+  Future selectNotification(String? payload) async {
+    if (payload != "Changement de thème") {
+      Get.to(() => NotifiedPage(label: payload));
+    }
+  }
 
 //Fonction pour envoyer des notifications chaques jours à une heure bien precise
   Future<void> showDailyNotification(
